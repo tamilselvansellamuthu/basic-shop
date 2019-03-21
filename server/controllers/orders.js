@@ -13,9 +13,7 @@ exports.listOrders = function (req, res, next) {
 };
 
 exports.getOrder = function (req, res, next) {
-    // var token = (typeof (req.headers.token) !== 'undefined' && req.headers.token.length) > 0 ? req.headers.token : false;
     var order_id = (typeof (req.params.order_id) !== 'undefined' && req.params.order_id.length) > 0 ? req.params.order_id : false;
-    // if (token && item_id) {
     Order.findOne({
         id: order_id
     }, function (err, order) {
