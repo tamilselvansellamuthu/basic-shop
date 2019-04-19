@@ -6,7 +6,7 @@ exports.authentication = function (req, res) {
 
     // find the user
     User.findOne({
-        name: req.body.name
+        name: req.body.username
     }, function (err, user) {
 
         if (err) throw err;
@@ -33,7 +33,6 @@ exports.authentication = function (req, res) {
 
                 // return the information including token as JSON
                 res.json({
-                    success: true,
                     message: 'Enjoy your token!',
                     token: token
                 });

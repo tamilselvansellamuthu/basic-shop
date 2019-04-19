@@ -13,6 +13,6 @@ exports.createAdminUser = function (req, res) {
         if (err) throw err;
 
         console.log('User saved successfully');
-        res.json({ success: true });
+        res.json({ message: "setup completed" });
     });
 }

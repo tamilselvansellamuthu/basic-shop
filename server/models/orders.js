@@ -9,6 +9,14 @@ const itemSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    non_veg:{
+        type: Boolean,
+        required: true
+    },
+    catagory:{
+        type: String,
+        required: true
+    },
     unit_price: {
         type: Number,
         required: true

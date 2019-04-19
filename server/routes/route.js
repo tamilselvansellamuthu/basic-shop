@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 
-const users = require('../controllers/users')
+// const users = require('../controllers/users')
 const items = require('../controllers/items')
 const orders = require('../controllers/orders')
 const tokens = require('../controllers/tokens')
 
 // retrive all items
-router.get('/items', users.listItems);
+router.get('/items', items.listItems);
 
 // create token
 router.post('/authenticate', tokens.authentication);

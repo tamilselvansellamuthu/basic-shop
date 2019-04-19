@@ -9,6 +9,7 @@ var app = express();
 
 const route = require('./server/routes/route');
 const setup = require('./server/controllers/setup');
+const config = require('./config');
 
 // connect to mongodb
 mongoose.connect('mongodb://localhost:27017/basic-shop', { useNewUrlParser: true });
@@ -24,9 +25,6 @@ mongoose.connection.on('error', (err) => {
     }
 });
 
-// port no
-const port = 3000;
-
 // adding middleware - cors
 app.use(cors());
 
@@ -34,7 +32,7 @@ app.use(cors());
 app.use(bodyparser.json());
 
 app.get('/', function(req, res) {
-    res.send('Hello! The API is at http://localhost:' + port + '/api');
+    res.send('Hello! The API is at http://localhost:' + config.port + '/api');
 });
 
 app.get('/setup', setup.createAdminUser);
@@ -45,6 +43,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 // routes
 app.use('/api', route);
 
-app.listen(port, () => {
-    console.log('Server started at port: ' + port);
+app.listen(config.port, () => {
+    console.log('Server started at port: ' + config.port);
 });

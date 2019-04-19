@@ -1,12 +1,48 @@
 const Order = require('../models/orders');
 
 exports.listOrders = function (req, res, next) {
-    Order.find({}, (err, users) => {
-        if (!err && users) {
-            res.json(users);
+    // Order.find({}, (err, orders) => {
+    //     if (!err && orders) {
+    //         res.json(orders);
+    //     } else {
+    //         res.json({
+    //             "Error": err
+    //         });
+    //     }
+    // })
+    Order.find({}, (err, orders) => {
+        if (!err && orders) {
+            res.json({
+                // message: msg_orders
+                message: orders
+            });
+            // msg = [];
+            // msg_orders = [];
+            // order = {};
+            // for (i = 0; i < orders.length; i++) {
+            //     order.order_id = orders[i].id;
+            //     order.order_date = orders[i].name;
+            //     order.total_price = orders[i].total_price;
+            //     order.items = [];
+
+            //     for (j = 0; j < orders.length; j++) {
+            //         item = {}
+            //         item.item_name = orders[i].items[j].name;
+            //         item.qty = orders[i].items[j].qty;
+            //         item.unit_price = orders[i].items[j].unit_price;
+            //         item.price = orders[i].items[j].price;
+            //         order.items[j] = item
+            //     }
+            //     msg_orders[i] = order
+            // }
+            // res.json({
+            //     // message: msg_orders
+            //     message: orders
+            // });
         } else {
             res.json({
-                "Error": err
+                // message: msg_orders
+                message: err
             });
         }
     })
@@ -48,53 +84,54 @@ exports.createOrder = function (req, res, next) {
         });
     } else {
         Order.aggregate([{
-                $group: {
-                    _id: null,
-                    last_order_id: {
-                        $max: '$id'
-                    }
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    last_order_id: 1
+            $group: {
+                _id: null,
+                last_order_id: {
+                    $max: '$id'
                 }
             }
+        },
+        {
+            $project: {
+                _id: 0,
+                last_order_id: 1
+            }
+        }
         ]).
-        then(function (doc) {
-            var order_id;
-            if (typeof (doc[0]) === 'undefined') {
-                order_id = 1
-            } else {
-                order_id = doc[0].last_order_id + 1;
-            }
-            let newOrder = new Order({
-                id: order_id,
-                date: Date.now(),
-                total_price: req.body.total_price
-            });
-
-            Order.create(newOrder, (err, order) => {
-                if (err) {
-                    console.log(err);
-                    res.json({
-                        msg: 'Failed to add items in order'
-                    });
+            then(function (doc) {
+                var order_id;
+                if (typeof (doc[0]) === 'undefined') {
+                    order_id = 1
                 } else {
-                    var items = {
-                        name: req.body.item_name,
-                        qty: req.body.qty,
-                        unit_price: req.body.unit_price,
-                        price: req.body.price
-                    }
-                    order.items.push(items);
-                    order.save(res.json({
-                        "orders": order.id
-                    }));
+                    order_id = doc[0].last_order_id + 1;
                 }
-            })
-        });
+                let newOrder = new Order({
+                    id: order_id,
+                    date: Date.now(),
+                    total_price: req.body.total_price
+                });
+
+                Order.create(newOrder, (err, order) => {
+                    if (err) {
+                        console.log(err);
+                        res.json({
+                            message: 'Failed to add items in order'
+                        });
+                    } else {
+                        for (i = 0; i < req.body.items.length; i++) {
+                            order.items.push(req.body.items[i])
+                        }
+                        order.save(res.json({
+                            "message": {
+                                "order_id": order.id,
+                                "date": order.date,
+                                "items": order.items,
+                                "total_price": order.total_price
+                            }
+                        }));
+                    }
+                })
+            });
     }
 };
 
@@ -108,9 +145,9 @@ exports.updateOrder = function (req, res, next) {
         }, function (err, order) {
             if (!err && order) {
                 Order.findOneAndUpdate({
-                        "id": order_id,
-                        "items.name": item_name
-                    }, {
+                    "id": order_id,
+                    "items.name": item_name
+                }, {
                         "$set": {
                             "items.$.qty": req.body.qty,
                             "items.$.unit_price": req.body.unit_price,
@@ -119,31 +156,36 @@ exports.updateOrder = function (req, res, next) {
                     },
                     function (err, doc) {
                         if (!err && doc) {
-                            res.status(200).json({
-                                "order": doc
+                            Order.findOne({
+                                "id": order_id,
+                                "items.name": item_name
+                            }, function (err, doc) {
+                                res.status(200).json({
+                                    "message": doc
+                                })
                             })
                         }
                     }
                 );
             } else {
                 res.status(404).json({
-                    "result": "token not found"
+                    "message": err
                 })
             }
         });
     } else {
         if (!order_id && !item_name) {
             res.status(404).json({
-                error: "order_id & item_name should be valid"
+                message: "order_id & item_name should be valid"
             })
         } else {
             if (!order_id) {
                 res.status(404).json({
-                    error: "order_id should be valid"
+                    message: "order_id should be valid"
                 })
             } else {
                 res.status(404).json({
-                    error: "item_name should be valid"
+                    message: "item_name should be valid"
                 })
             }
         }
@@ -163,8 +205,8 @@ exports.deleteOrder = function (req, res, next) {
             if (typeof (items) !== 'undefined') {
 
                 Order.findOneAndUpdate({
-                        id: order_id
-                    }, {
+                    id: order_id
+                }, {
                         $pull: {
                             items: {
                                 name: item_name
@@ -186,12 +228,12 @@ exports.deleteOrder = function (req, res, next) {
     } else {
         if (!order_id && !item_name) {
             res.status(404).json({
-                error: "order_id & item_name should be valid"
+                message: "order_id & item_name should be valid"
             })
         } else {
             if (!order_id) {
                 res.status(404).json({
-                    error: "order_id should be valid"
+                    message: "order_id should be valid"
                 })
             } else {
 
@@ -204,7 +246,7 @@ exports.deleteOrder = function (req, res, next) {
                         })
                     } else {
                         res.status(404).json({
-                            error: "order_id " + order_id + " could not be deleted"
+                            message: "order_id " + order_id + " could not be deleted"
                         })
                     }
                 });
