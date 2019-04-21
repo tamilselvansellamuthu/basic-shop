@@ -1,0 +1,359 @@
+basic-shop API details
+**********************
+
+1) setup admin user
+creating user and password as admin/admin with role admin 
+
+db: basic-shop 
+collection: users
+
+url: http://localhost:5000/setup 
+method:get
+
+response
+{
+    "message": "setup completed"
+}
+
+2) basic api location
+url: http://localhost:5000/
+method: get
+response
+Hello! The API is at http://localhost:5000/api
+
+3) getting json web token JWT
+url: http://localhost:5000/api/authenticate
+method: post
+input:
+{
+"username":"admin",
+"password":"admin"
+}
+response:
+{
+    "message": "Enjoy your token!",
+    "token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaWF0IjoxNTU0MDE4MDY4LCJleHAiOjE1NTQwMTk1MDh9.MNQyVahP5_zhynsi9E8eXhrEou_BO_LQHBpBkfCJSfM"
+}
+
+4) accessing the api using token
+
+please note the token can be sent in 3 ways
+    1) headers(below example --> x-access-token) in get or post method.
+    2) parms (--> token) in get or post method
+    3) body (--> token) in post method
+
+url: http://localhost:5000/api
+headers: x-cross-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhZG1pbiI6dHJ1ZSwiaWF0IjoxNTU0MDE4MDY4LCJleHAiOjE1NTQwMTk1MDh9.MNQyVahP5_zhynsi9E8eXhrEou_BO_LQHBpBkfCJSfM
+method: get
+
+response:
+{
+    "message": "Welcome to the coolest API on earth!"
+}
+
+5) adding item
+
+affected db & collections
+db: basic-shop
+collection: items
+
+url: http://localhost:5000/api/item
+method: post
+
+input:
+{
+    "item_name": "fish fry",
+    "non_veg": true,
+    "catagory": "starters",
+    "price":"120"
+}
+
+response:
+output:
+{
+    "message": {
+        "item_id": 8,
+        "item_name": "fish fry",
+        "non_veg": true,
+        "catagory": "starters",
+        "price": 120
+    }
+}
+
+6) viewing all items
+url: http://localhost:5000/api/items
+method: get
+
+response:
+{
+    "message": [
+        {
+            "item_id": 1,
+            "item_name": "fish fry",
+            "non_veg": true,
+            "catagory": "starters"
+        },
+        {
+            "item_id": 2,
+            "item_name": "chicken fry",
+            "non_veg": true,
+            "catagory": "starters"
+        }
+    ]
+}
+
+7) viewing a particular item
+url: http://localhost:5000/api/item/1
+method: get
+
+response:
+{
+    "message": {
+        "item_id": 1,
+        "item_name": "fishfry",
+        "non_veg": false,
+        "catagory": "starter"
+    }
+}
+
+8) editing a particular item
+url: http://localhost:5000/api/item
+method: put
+input:
+{
+    "item_id":1,
+    "item_name":"fishfry",
+    "non_veg":false,
+    "catagory": "starter",
+    "price":120
+}
+response:
+{
+    "message": {
+        "item_id": 1,
+        "item_name": "fishfry",
+        "non_veg": false,
+        "catagory": "starter"
+    }
+}
+
+9) deleting a particular item
+
+url: http://localhost:5000/api/item/3
+method: delete
+
+response:
+{
+    "message": "Item deleted successfully"
+}
+##########################################################################################################################
+10) create order
+affected db & collections
+db: basic-shop
+collection: orders
+
+method: post
+url: http://localhost:5000/api/order
+
+input:
+{
+	"items":[
+		{
+			"name":"chilly chicken",
+			"qty":2,
+			"unit_price":120,
+			"price":240,
+			"non_veg":true,
+			"catagory":"starters"
+		},
+				{
+			"name":"veg fried rice",
+			"qty":2,
+			"unit_price":120,
+			"price":240,
+			"non_veg":false,
+			"catagory":"main course"
+		}
+	],
+	"total_price": 500
+}
+output:
+{
+    "message": {
+        "order_id": 2,
+        "date": "2019-04-19T05:48:04.410Z",
+        "items": [
+            {
+                "_id": "5cb961148a180e61942a3bef",
+                "name": "chilly chicken",
+                "qty": 2,
+                "unit_price": 120,
+                "price": 240,
+                "non_veg": true,
+                "catagory": "starters"
+            },
+            {
+                "_id": "5cb961148a180e61942a3bf0",
+                "name": "veg fried rice",
+                "qty": 2,
+                "unit_price": 120,
+                "price": 240,
+                "non_veg": false,
+                "catagory": "main course"
+            }
+        ],
+        "total_price": 500
+    }
+}
+
+11) list all orders
+input:
+url: http://localhost:5000/api/orders
+method: get
+
+
+output:
+{
+    "message": [
+        {
+            "_id": "5cb960d88a180e61942a3beb",
+            "id": 1,
+            "date": "2019-04-19T05:47:04.019Z",
+            "total_price": 500,
+            "items": [
+                {
+                    "_id": "5cb960d88a180e61942a3bec",
+                    "name": "chilly chicken1",
+                    "qty": 2,
+                    "unit_price": 120,
+                    "price": 240,
+                    "non_veg": true,
+                    "catagory": "starters"
+                },
+                {
+                    "_id": "5cb960d88a180e61942a3bed",
+                    "name": "veg fried rice1",
+                    "qty": 2,
+                    "unit_price": 120,
+                    "price": 240,
+                    "non_veg": false,
+                    "catagory": "main course"
+                }
+            ],
+            "__v": 1
+        },
+        {
+            "_id": "5cb961148a180e61942a3bee",
+            "id": 2,
+            "date": "2019-04-19T05:48:04.410Z",
+            "total_price": 500,
+            "items": [
+                {
+                    "_id": "5cb961148a180e61942a3bef",
+                    "name": "chilly chicken",
+                    "qty": 2,
+                    "unit_price": 120,
+                    "price": 240,
+                    "non_veg": true,
+                    "catagory": "starters"
+                },
+                {
+                    "_id": "5cb961148a180e61942a3bf0",
+                    "name": "veg fried rice",
+                    "qty": 2,
+                    "unit_price": 120,
+                    "price": 240,
+                    "non_veg": false,
+                    "catagory": "main course"
+                }
+            ],
+            "__v": 1
+        }
+    ]
+}
+
+12) get a particular item
+input
+url: http://localhost:5000/api/order/2
+method: get
+
+output:
+{
+    "_id": "5cb961148a180e61942a3bee",
+    "id": 2,
+    "date": "2019-04-19T05:48:04.410Z",
+    "total_price": 500,
+    "items": [
+        {
+            "_id": "5cb961148a180e61942a3bef",
+            "name": "chilly chicken",
+            "qty": 2,
+            "unit_price": 120,
+            "price": 240,
+            "non_veg": true,
+            "catagory": "starters"
+        },
+        {
+            "_id": "5cb961148a180e61942a3bf0",
+            "name": "veg fried rice",
+            "qty": 2,
+            "unit_price": 120,
+            "price": 240,
+            "non_veg": false,
+            "catagory": "main course"
+        }
+    ],
+    "__v": 1
+}
+
+13) Update the orders
+url: http://localhost:5000/api/order
+method: post
+input:
+{
+    "order_id":2,
+    "item_name":"veg fried rice",
+    "qty": 5,
+    "unit_price": 120 ,
+    "price": 500
+}
+
+output:
+{
+    "message": {
+        "_id": "5cb961148a180e61942a3bee",
+        "id": 2,
+        "date": "2019-04-19T05:48:04.410Z",
+        "total_price": 500,
+        "items": [
+            {
+                "_id": "5cb961148a180e61942a3bef",
+                "name": "chilly chicken",
+                "qty": 2,
+                "unit_price": 120,
+                "price": 240,
+                "non_veg": true,
+                "catagory": "starters"
+            },
+            {
+                "_id": "5cb961148a180e61942a3bf0",
+                "name": "veg fried rice",
+                "qty": 5,
+                "unit_price": 120,
+                "price": 500,
+                "non_veg": false,
+                "catagory": "main course"
+            }
+        ],
+        "__v": 1
+    }
+}
+
+14) delete order
+url: http://localhost:5000/api/order/1
+method: delete
+
+output:
+{
+    "message": "order_id 1 deleted successfully"
+}
